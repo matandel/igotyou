@@ -1,0 +1,43 @@
+<ion-modal [isOpen]="isModalOpen">
+  <ng-template>
+    <ion-content>
+      <ion-card>
+        <ion-card-header>
+          <ion-card-subtitle>Save as a new template?</ion-card-subtitle>
+        </ion-card-header>
+        <ion-card-content>
+          <ion-item>
+            <ion-label position="floating"> Template Name </ion-label>
+            <ion-input [(ngModel)]="templateName"></ion-input>
+          </ion-item>
+          <div class="modal-actions">
+            <ion-button
+              color="secondary"
+              fill="outline"
+              (click)="closeModal()"
+            >
+              No - Update
+              <ion-icon
+                slot="end"
+                [ios]="'close-outline'"
+                [md]="'close-sharp'"
+              ></ion-icon>
+            </ion-button>
+            <ion-button
+              color="primary"
+              [disabled]="templateName.length === 0"
+              (click)="saveTemplate()"
+            >
+              Yes
+              <ion-icon
+                slot="end"
+                [ios]="'checkmark-outline'"
+                [md]="'checkmark-sharp'"
+              ></ion-icon>
+            </ion-button>
+          </div>
+        </ion-card-content>
+      </ion-card>
+    </ion-content>
+  </ng-template>
+</ion-modal>

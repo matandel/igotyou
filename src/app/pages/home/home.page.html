@@ -1,0 +1,148 @@
+<div class="container">
+  <ion-card>
+    <ion-card-header>
+      <ion-card-subtitle>Message details</ion-card-subtitle>
+      <ion-card-title></ion-card-title>
+    </ion-card-header>
+    <ion-card-content *ngIf="currentTemplate">
+      <ion-item>
+        <ion-label position="floating">Select Template</ion-label>
+        <ionic-selectable
+          [(ngModel)]="selectedTemplateKey"
+          [items]="templateList"
+          [canSearch]="true"
+          headerColor="secondary"
+          groupColor="primary"
+          itemValueField="value"
+          itemTextField="label"
+          (onChange)="selectTemplate($event)"
+        >
+        </ionic-selectable>
+      </ion-item>
+
+      <ion-item>
+        <ion-label position="floating">Add Contacts</ion-label>
+        <ionic-selectable
+          [(ngModel)]="selectedContacts"
+          [items]="contactList"
+          [canSearch]="true"
+          [isMultiple]="true"
+          headerColor="secondary"
+          groupColor="primary"
+          color="secondary"
+          itemValueField="value"
+          itemTextField="label"
+          (onChange)="selectContacts($event)"
+        >
+        </ionic-selectable>
+      </ion-item>
+
+      <ion-item
+        *ngFor="let number of currentTemplate.numbers; let i = index;"
+      >
+        <ion-label position="floating">
+          Extra Number {{ i + 1 }}
+        </ion-label>
+        <ion-input
+          [ngModel]="currentTemplate.numbers[i]"
+          type="tel"
+          maxlength="24"
+          color="secondary"
+          (ngModelChange)="updateTemplateNumber($event, i)"
+        ></ion-input>
+        <ion-icon
+          *ngIf="i > 0"
+          slot="end"
+          [ios]="'remove-circle-outline'"
+          [md]="'remove-circle-sharp'"
+          [color]="'primary'"
+          class="input-icon"
+          (click)="removeTemplateNumber(i)"
+        ></ion-icon>
+      </ion-item>
+
+      <ion-item lines="none">
+        <ion-button
+          color="primary"
+          expand="block"
+          fill="outline"
+          [disabled]="currentTemplate.numbers.length >= 5"
+          (click)="addTemplateNumber()"
+        >
+          Add Number
+          <ion-icon
+            slot="end"
+            [ios]="'add-outline'"
+            [md]="'add-sharp'"
+          ></ion-icon>
+        </ion-button>
+      </ion-item>
+
+      <ion-item>
+        <ion-label position="floating">Your Message</ion-label>
+        <ion-textarea
+          [(ngModel)]="currentTemplate.message"
+          rows="3"
+          maxLength="230"
+          color="secondary"
+        ></ion-textarea>
+      </ion-item>
+
+      <ion-item lines="none">
+        <ion-label>Include Location?</ion-label>
+        <ion-checkbox
+          color="primary"
+          [(ngModel)]="currentTemplate.includeLocation"
+        ></ion-checkbox>
+      </ion-item>
+
+      <div class="form-actions">
+        <ion-button
+          color="tertiary"
+          fill="outline"
+          (click)="clearTemplate()"
+        >
+          Clear
+          <ion-icon
+            slot="end"
+            [ios]="'close-outline'"
+            [md]="'close-sharp'"
+          ></ion-icon>
+        </ion-button>
+
+        <ion-button
+          color="secondary"
+          [disabled]="disableActions()"
+          (click)="storeFormData()"
+        >
+          Save
+          <ion-icon
+            slot="end"
+            [ios]="'save-outline'"
+            [md]="'save-sharp'"
+          ></ion-icon>
+        </ion-button>
+
+        <ion-button
+          color="primary"
+          [disabled]="disableActions()"
+          (click)="sendTemplate()"
+        >
+          Send
+          <ion-icon
+            slot="end"
+            [ios]="'send-outline'"
+            [md]="'send-sharp'"
+          ></ion-icon>
+        </ion-button>
+      </div>
+    </ion-card-content>
+  </ion-card>
+</div>
+
+<app-save-template-modal
+  [isModalOpen]="showSaveTemplateModal"
+  [templateKeys]="templateKeys"
+  (saveTemplateEmitter)="saveTemplate($event)"
+  (closeModalEmitter)="setModalVisibility(false)"
+></app-save-template-modal>

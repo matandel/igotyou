@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">IGotYou</string>
+    <string name="title_activity_main">IGotYou</string>
+    <string name="package_name">com.igotyou</string>
+    <string name="custom_url_scheme">com.igotyou</string>
+</resources>

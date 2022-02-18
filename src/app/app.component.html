@@ -1,0 +1,11 @@
+<ion-app>
+  <app-menu (pageTitleUpdated)="setPageTitle($event)"></app-menu>
+  <ion-content [fullscreen]="true">
+    <app-toolbar [title]="pageTitle"></app-toolbar>
+    <ion-router-outlet id="main-content"></ion-router-outlet>
+  </ion-content>
+
+  <div *ngIf="loadingData" class="spinner">
+    <ion-spinner name="circles" color="primary"></ion-spinner>
+  </div>
+</ion-app>
