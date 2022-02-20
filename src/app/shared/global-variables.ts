@@ -1,6 +1,14 @@
+import { SelectItem } from './interfaces/select-item.interface'
+
 export const enum STORAGE_KEYS {
   DARK_MODE = 'isDarkMode',
-  FORM = 'storedFormData',
+  DEFAULT_TEMPLATE = 'default',
+  SELECTED_TEMPLATE = 'selectedTemplate',
+}
+
+export const DEFAULT_TEMPLATE_ITEM: SelectItem = {
+  value: 'default',
+  label: 'Default',
 }
 
 export const MAPS_URL: string = 'https://www.google.com/maps/place/'
