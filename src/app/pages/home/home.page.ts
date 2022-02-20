@@ -97,7 +97,7 @@ export class HomePage implements OnInit {
         const storedKeys: string[] = response
 
         this.templateKeys = storedKeys.filter((key: string) =>
-          key.startsWith('template-'),
+          key.startsWith(STORAGE_KEYS.TEMPLATE_PREFIX),
         )
         this.setTemplateList()
         this.checkDefaultTemplate()
@@ -232,8 +232,8 @@ export class HomePage implements OnInit {
   public async showSaveActions(): Promise<void> {
     const showActionResult: ShowActionsResult =
       await ActionSheet.showActions({
-        title: 'Save Template',
-        message: 'Select an option to perform',
+        title: 'How do you want to save this form?',
+        message: '',
         options: [
           {
             title: 'Add New Template',
@@ -269,7 +269,7 @@ export class HomePage implements OnInit {
     const newTemplateKey: string =
       templateName === STORAGE_KEYS.DEFAULT_TEMPLATE
         ? templateName
-        : `template-${templateName}`
+        : `${STORAGE_KEYS.TEMPLATE_PREFIX}${templateName}`
 
     this.storeTemplate(newTemplateKey)
 
@@ -277,6 +277,8 @@ export class HomePage implements OnInit {
       this.templateKeys.push(newTemplateKey)
     }
     this.setTemplateList()
+
+    this.storageService.set(STORAGE_KEYS.SELECTED_TEMPLATE, newTemplateKey)
 
     this.selectedTemplateKey = {
       value: newTemplateKey,

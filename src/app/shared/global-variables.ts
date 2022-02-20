@@ -4,6 +4,7 @@ export const enum STORAGE_KEYS {
   DARK_MODE = 'isDarkMode',
   DEFAULT_TEMPLATE = 'default',
   SELECTED_TEMPLATE = 'selectedTemplate',
+  TEMPLATE_PREFIX = 'template-',
 }
 
 export const DEFAULT_TEMPLATE_ITEM: SelectItem = {
@@ -14,7 +15,7 @@ export const DEFAULT_TEMPLATE_ITEM: SelectItem = {
 export const MAPS_URL: string = 'https://www.google.com/maps/place/'
 
 export const DELETE_TEMPLATE_MESSAGE: string =
-  'Are you sure you want to delete this template? This action can not be undone.'
+  'Are you sure you want to delete this template?'
 
 export const TEMPLATE_NAME_TAKEN_MESSAGE: string =
   'Template with this name already exists.'

@@ -1,7 +1,9 @@
 <div class="container">
   <ion-card>
     <ion-card-header>
-      <ion-card-subtitle>List of saved templates</ion-card-subtitle>
+      <ion-card-subtitle
+        >{{ 'List of saved templates' | uppercase}}</ion-card-subtitle
+      >
     </ion-card-header>
     <ion-card-content>
       <ion-searchbar
@@ -41,6 +43,15 @@
           <ion-icon
             *ngIf="templateKey === editedTemplateKey"
             slot="end"
+            [ios]="'close-outline'"
+            [md]="'close-sharp'"
+            [color]="'secondary'"
+            class="input-icon"
+            (click)="disableTemplateEdit()"
+          ></ion-icon>
+          <ion-icon
+            *ngIf="templateKey === editedTemplateKey"
+            slot="end"
             [ios]="'save-outline'"
             [md]="'save-sharp'"
             [color]="'tertiary'"
@@ -52,10 +63,3 @@
     </ion-card-content>
   </ion-card>
 </div>
-
-<app-confirmation-modal
-  [isModalOpen]="showConfirmationModal"
-  [message]="deleteConfirmationMessage"
-  (closeModalEmitter)="setModalVisibility(false)"
-  (confirmationEmitter)="deleteTemplate()"
-></app-confirmation-modal>
