@@ -2,11 +2,19 @@ ion-item {
   margin-top: 1em;
 }
 
+.add-number-button {
+  width: 100%;
+}
+
 .form-actions {
   width: 100%;
   display: flex;
   justify-content: space-between;
   margin-top: 2em;
+
+  ion-button {
+    width: 33%;
+  }
 }
 
 .input-icon {

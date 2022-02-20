@@ -22,7 +22,7 @@
         </ionic-selectable>
       </ion-item>
 
-      <ion-item>
+      <ion-item *ngIf="contactList && contactList.length > 0">
         <ion-label position="floating">Add Contacts</ion-label>
         <ionic-selectable
           [(ngModel)]="selectedContacts"
@@ -65,6 +65,7 @@
 
       <ion-item lines="none">
         <ion-button
+          class="add-number-button"
           color="primary"
           expand="block"
           fill="outline"

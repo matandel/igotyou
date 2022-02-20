@@ -1,11 +1,10 @@
 import { Component, OnInit, ViewChild } from '@angular/core'
-import { IonInput, isPlatform } from '@ionic/angular'
-import { Keyboard } from '@capacitor/keyboard'
 import {
-  ActionSheet,
-  ActionSheetButtonStyle,
-  ShowActionsResult,
-} from '@capacitor/action-sheet'
+  IonInput,
+  isPlatform,
+  ActionSheetController,
+} from '@ionic/angular'
+import { Keyboard } from '@capacitor/keyboard'
 
 import { Template } from '../../shared/models/template.model'
 import { StorageService } from '../../shared/services/storage.service'
@@ -33,6 +32,7 @@ export class TemplatesPage implements OnInit {
   public searchString: string = ''
 
   constructor(
+    private actionSheetController: ActionSheetController,
     private storageService: StorageService,
     private helperService: HelperService,
     private toastService: ToastService,
@@ -152,30 +152,30 @@ export class TemplatesPage implements OnInit {
   }
 
   public async showDeleteActions(): Promise<void> {
-    const showActionResult: ShowActionsResult =
-      await ActionSheet.showActions({
-        title: DELETE_TEMPLATE_MESSAGE,
-        message: '',
-        options: [
-          {
-            title: 'Delete',
-            style: ActionSheetButtonStyle.Default,
+    const actionSheet = await this.actionSheetController.create({
+      header: DELETE_TEMPLATE_MESSAGE,
+      buttons: [
+        {
+          text: 'Delete',
+          role: 'destructive',
+          icon: 'trash',
+          data: {
+            type: 'delete',
           },
-          {
-            title: 'Cancel',
-            style: ActionSheetButtonStyle.Cancel,
+          handler: () => {
+            this.deleteTemplate()
           },
-        ],
-      })
+        },
+        {
+          text: 'Cancel',
+          icon: 'close',
+          role: 'cancel',
+          handler: () => {},
+        },
+      ],
+    })
 
-    switch (showActionResult.index) {
-      case 0:
-        this.deleteTemplate()
-        break
-      case 1:
-      default:
-        break
-    }
+    await actionSheet.present()
   }
 
   public deleteTemplate(): void {
@@ -227,7 +227,10 @@ export class TemplatesPage implements OnInit {
   public filterTemplates(): void {
     this.visibleTemplateKeys = [
       ...this.templateKeys.filter((key: string) =>
-        key.slice(9).includes(this.searchString),
+        key
+          .toLowerCase()
+          .slice(9)
+          .includes(this.searchString.toLowerCase()),
       ),
     ]
   }
