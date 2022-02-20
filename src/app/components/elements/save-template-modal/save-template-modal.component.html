@@ -3,7 +3,9 @@
     <ion-content>
       <ion-card>
         <ion-card-header>
-          <ion-card-subtitle>Save as a new template?</ion-card-subtitle>
+          <ion-card-subtitle>{{
+            'Name your template' | uppercase
+          }}</ion-card-subtitle>
         </ion-card-header>
         <ion-card-content>
           <ion-item>
@@ -16,7 +18,7 @@
               fill="outline"
               (click)="closeModal()"
             >
-              No - Update
+              Cancel
               <ion-icon
                 slot="end"
                 [ios]="'close-outline'"
@@ -28,7 +30,7 @@
               [disabled]="templateName.length === 0"
               (click)="saveTemplate()"
             >
-              Yes
+              Save
               <ion-icon
                 slot="end"
                 [ios]="'checkmark-outline'"

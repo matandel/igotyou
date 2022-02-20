@@ -3,6 +3,11 @@ import { isPlatform, Platform } from '@ionic/angular'
 import { Contacts, Contact } from '@capacitor-community/contacts'
 import { IonicSelectableComponent } from 'ionic-selectable'
 import { AndroidPermissions } from '@awesome-cordova-plugins/android-permissions/ngx'
+import {
+  ActionSheet,
+  ActionSheetButtonStyle,
+  ShowActionsResult,
+} from '@capacitor/action-sheet'
 
 import { Template } from '../../shared/models/template.model'
 import { SelectItem } from '../../shared/interfaces/select-item.interface'
@@ -222,9 +227,37 @@ export class HomePage implements OnInit {
 
   public setModalVisibility(modalVisible: boolean): void {
     this.showSaveTemplateModal = modalVisible
+  }
 
-    if (modalVisible === false) {
-      this.storeTemplate(this.selectedTemplateKey.value)
+  public async showSaveActions(): Promise<void> {
+    const showActionResult: ShowActionsResult =
+      await ActionSheet.showActions({
+        title: 'Save Template',
+        message: 'Select an option to perform',
+        options: [
+          {
+            title: 'Add New Template',
+          },
+          {
+            title: 'Update Current Template',
+          },
+          {
+            title: 'Cancel',
+            style: ActionSheetButtonStyle.Destructive,
+          },
+        ],
+      })
+
+    switch (showActionResult.index) {
+      case 0:
+        this.setModalVisibility(true)
+        break
+      case 1:
+        this.storeTemplate(this.selectedTemplateKey.value)
+        break
+      case 2:
+      default:
+        break
     }
   }
 
