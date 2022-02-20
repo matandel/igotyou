@@ -1,11 +1,21 @@
 import { Component, OnInit, ViewChild } from '@angular/core'
 import { IonInput, isPlatform } from '@ionic/angular'
 import { Keyboard } from '@capacitor/keyboard'
+import {
+  ActionSheet,
+  ActionSheetButtonStyle,
+  ShowActionsResult,
+} from '@capacitor/action-sheet'
 
+import { Template } from '../../shared/models/template.model'
 import { StorageService } from '../../shared/services/storage.service'
 import { HelperService } from '../../shared/services/helper.service'
-import { Template } from '../../shared/models/template.model'
-import { DELETE_TEMPLATE_MESSAGE } from '../../shared/global-variables'
+import { ToastService } from '../../shared/services/toast.service'
+import {
+  DELETE_TEMPLATE_MESSAGE,
+  STORAGE_KEYS,
+  TEMPLATE_NAME_TAKEN_MESSAGE,
+} from '../../shared/global-variables'
 
 @Component({
   selector: 'app-templates',
@@ -20,14 +30,12 @@ export class TemplatesPage implements OnInit {
   public visibleTemplateKeys: string[] = []
   public editedTemplateKey: string
   public templateName: string = ''
-  public deleteConfirmationMessage: string = DELETE_TEMPLATE_MESSAGE
   public searchString: string = ''
-
-  public showConfirmationModal: boolean = false
 
   constructor(
     private storageService: StorageService,
     private helperService: HelperService,
+    private toastService: ToastService,
   ) {}
 
   public ngOnInit(): void {
@@ -41,7 +49,7 @@ export class TemplatesPage implements OnInit {
       this.storageService.getKeys().subscribe((response: string[]) => {
         const storedKeys: string[] = this.helperService.sortKeys(response)
         this.templateKeys = storedKeys.filter((key: string) =>
-          key.startsWith('template-'),
+          key.startsWith(STORAGE_KEYS.TEMPLATE_PREFIX),
         )
 
         this.visibleTemplateKeys = [...this.templateKeys]
@@ -61,8 +69,8 @@ export class TemplatesPage implements OnInit {
 
   public enableTemplateEdit(templateKey: string): void {
     this.setTemplateName(templateKey)
-    this.clearTemplateName()
     this.editedTemplateKey = templateKey
+
     setTimeout(async () => {
       if (this.nameInput) {
         this.nameInput.setFocus()
@@ -74,31 +82,100 @@ export class TemplatesPage implements OnInit {
   }
 
   public saveTemplateName(templateKey: string): void {
-    this.storageService.setLoadingData(true)
-    this.editedTemplateKey = null
-    this.storageService.get(templateKey).subscribe((response: string) => {
-      const storedData: string = response
-      const editedTemplateData: Template = JSON.parse(storedData)
+    if (
+      this.templateKeys.some(
+        (key: string) =>
+          key === `${STORAGE_KEYS.TEMPLATE_PREFIX}${this.templateName}`,
+      )
+    ) {
+      this.displayNameTakenWarning()
+    } else {
+      this.storageService.setLoadingData(true)
+      this.editedTemplateKey = null
 
-      const newTemplateKey: string = `template-${this.templateName}`
+      this.storageService
+        .get(templateKey)
+        .subscribe((response: string) => {
+          const storedData: string = response
+          const editedTemplateData: Template = JSON.parse(storedData)
 
-      this.storageService.remove(templateKey)
-      this.storageService.set(newTemplateKey, editedTemplateData)
+          const newTemplateKey: string = `${STORAGE_KEYS.TEMPLATE_PREFIX}${this.templateName}`
 
-      for (const [index, value] of this.visibleTemplateKeys.entries()) {
-        if (value === templateKey) {
-          this.visibleTemplateKeys[index] = newTemplateKey
-          break
+          this.storageService.remove(templateKey)
+          this.storageService.set(newTemplateKey, editedTemplateData)
+
+          for (const [
+            index,
+            value,
+          ] of this.visibleTemplateKeys.entries()) {
+            if (value === templateKey) {
+              this.visibleTemplateKeys[index] = newTemplateKey
+              break
+            }
+          }
+
+          this.updateSelectedTemplate(templateKey, newTemplateKey)
+          this.checkStoredTemplates()
+        })
+    }
+  }
+
+  private updateSelectedTemplate(
+    templateKey: string,
+    newTemplateKey: string,
+  ): void {
+    this.storageService
+      .get(STORAGE_KEYS.SELECTED_TEMPLATE)
+      .subscribe((response: string) => {
+        let selectedTemplateKey: string = JSON.parse(response)
+
+        if (selectedTemplateKey === templateKey) {
+          this.storageService.set(
+            STORAGE_KEYS.SELECTED_TEMPLATE,
+            newTemplateKey,
+          )
         }
-      }
+      })
+  }
 
-      this.checkStoredTemplates()
-    })
+  public disableTemplateEdit(): void {
+    this.editedTemplateKey = null
+
+    if (isPlatform('android')) {
+      Keyboard.hide()
+    }
   }
 
   public confirmTemplateDelete(templateKey: string): void {
-    this.setModalVisibility(true)
     this.deletedTemplateKey = templateKey
+    this.showDeleteActions()
+  }
+
+  public async showDeleteActions(): Promise<void> {
+    const showActionResult: ShowActionsResult =
+      await ActionSheet.showActions({
+        title: DELETE_TEMPLATE_MESSAGE,
+        message: '',
+        options: [
+          {
+            title: 'Delete',
+            style: ActionSheetButtonStyle.Default,
+          },
+          {
+            title: 'Cancel',
+            style: ActionSheetButtonStyle.Cancel,
+          },
+        ],
+      })
+
+    switch (showActionResult.index) {
+      case 0:
+        this.deleteTemplate()
+        break
+      case 1:
+      default:
+        break
+    }
   }
 
   public deleteTemplate(): void {
@@ -109,9 +186,34 @@ export class TemplatesPage implements OnInit {
         this.visibleTemplateKeys.indexOf(this.deletedTemplateKey),
         1,
       )
+
+      this.isSelectedTemplateDeleted()
       this.checkStoredTemplates()
-      this.setModalVisibility(false)
     }
+  }
+
+  private isSelectedTemplateDeleted(): void {
+    this.storageService
+      .get(STORAGE_KEYS.SELECTED_TEMPLATE)
+      .subscribe((response: string) => {
+        let selectedTemplateKey: string = JSON.parse(response)
+
+        console.log(
+          'deleted',
+          selectedTemplateKey,
+          this.deletedTemplateKey,
+        )
+
+        if (
+          selectedTemplateKey &&
+          selectedTemplateKey == this.deletedTemplateKey
+        ) {
+          this.storageService.set(
+            STORAGE_KEYS.SELECTED_TEMPLATE,
+            STORAGE_KEYS.DEFAULT_TEMPLATE,
+          )
+        }
+      })
   }
 
   private clearTemplateName(): void {
@@ -122,15 +224,15 @@ export class TemplatesPage implements OnInit {
     this.templateName = this.helperService.getTemplateName(templateKey)
   }
 
-  public setModalVisibility(modalVisible: boolean): void {
-    this.showConfirmationModal = modalVisible
-  }
-
   public filterTemplates(): void {
     this.visibleTemplateKeys = [
       ...this.templateKeys.filter((key: string) =>
         key.slice(9).includes(this.searchString),
       ),
     ]
+  }
+
+  private displayNameTakenWarning(): void {
+    this.toastService.show(TEMPLATE_NAME_TAKEN_MESSAGE, 'warning')
   }
 }

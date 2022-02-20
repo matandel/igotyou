@@ -10,11 +10,11 @@ export class HelperService {
   constructor() {}
 
   public getTemplateName(templateKey: string): string {
-    if (templateKey === STORAGE_KEYS.FORM) {
-      return 'None'
+    if (templateKey === STORAGE_KEYS.DEFAULT_TEMPLATE) {
+      return 'Default'
     }
 
-    return templateKey.length > 9 ? templateKey.slice(9) : 'None'
+    return templateKey.length > 9 ? templateKey.slice(9) : 'Default'
   }
 
   public sortContacts(contacts: Contact[]): Contact[] {

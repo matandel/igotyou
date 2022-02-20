@@ -1,7 +1,9 @@
 <div class="container">
   <ion-card>
     <ion-card-header>
-      <ion-card-subtitle>Message details</ion-card-subtitle>
+      <ion-card-subtitle
+        >{{ 'Message details' | uppercase}}</ion-card-subtitle
+      >
       <ion-card-title></ion-card-title>
     </ion-card-header>
     <ion-card-content *ngIf="currentTemplate">
@@ -113,7 +115,7 @@
         <ion-button
           color="secondary"
           [disabled]="disableActions()"
-          (click)="storeFormData()"
+          (click)="showSaveActions()"
         >
           Save
           <ion-icon

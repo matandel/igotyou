@@ -3,21 +3,25 @@ import { isPlatform, Platform } from '@ionic/angular'
 import { Contacts, Contact } from '@capacitor-community/contacts'
 import { IonicSelectableComponent } from 'ionic-selectable'
 import { AndroidPermissions } from '@awesome-cordova-plugins/android-permissions/ngx'
+import {
+  ActionSheet,
+  ActionSheetButtonStyle,
+  ShowActionsResult,
+} from '@capacitor/action-sheet'
 
 import { Template } from '../../shared/models/template.model'
+import { SelectItem } from '../../shared/interfaces/select-item.interface'
 import { StorageService } from '../../shared/services/storage.service'
 import { SmsService } from '../../shared/services/sms.service'
 import { HelperService } from '../../shared/services/helper.service'
-import { STORAGE_KEYS } from '../../shared/global-variables'
+import {
+  DEFAULT_TEMPLATE_ITEM,
+  STORAGE_KEYS,
+} from '../../shared/global-variables'
 
 interface SelectableComponentEvent {
   component: IonicSelectableComponent
   value: any
-}
-
-interface SelectItem {
-  value: string
-  label: string
 }
 
 @Component({
@@ -31,7 +35,8 @@ export class HomePage implements OnInit {
   public contacts: Contact[] = []
   public selectedContacts: SelectItem[] = []
   public contactList: SelectItem[] = []
-  public selectedTemplateKey: SelectItem = { value: '', label: 'None' }
+  public selectedTemplateKey: SelectItem = DEFAULT_TEMPLATE_ITEM
+
   public templateList: SelectItem[] = []
   public templateKeys: string[] = []
   public showSaveTemplateModal: boolean = false
@@ -60,7 +65,6 @@ export class HomePage implements OnInit {
       this.clearTemplate()
       this.loadContacts()
       this.checkStoredTemplates()
-      this.checkStoredForm(STORAGE_KEYS.FORM)
     })
   }
 
@@ -87,6 +91,20 @@ export class HomePage implements OnInit {
     }
   }
 
+  private checkStoredTemplates(): void {
+    setTimeout(() => {
+      this.storageService.getKeys().subscribe((response: string[]) => {
+        const storedKeys: string[] = response
+
+        this.templateKeys = storedKeys.filter((key: string) =>
+          key.startsWith(STORAGE_KEYS.TEMPLATE_PREFIX),
+        )
+        this.setTemplateList()
+        this.checkDefaultTemplate()
+      })
+    }, 200)
+  }
+
   private checkStoredForm(templateKey: string): void {
     setTimeout(() => {
       this.storageService
@@ -98,21 +116,6 @@ export class HomePage implements OnInit {
           this.checkCurrentTemplate(storedTemplate)
           this.storageService.setLoadingData(false)
         })
-    }, 200)
-  }
-
-  private checkStoredTemplates(): void {
-    setTimeout(() => {
-      this.storageService.getKeys().subscribe((response: string[]) => {
-        const storedKeys: string[] = response
-
-        this.templateKeys = storedKeys.filter((key: string) =>
-          key.startsWith('template-'),
-        )
-        this.setTemplateList()
-
-        this.storageService.setLoadingData(false)
-      })
     }, 200)
   }
 
@@ -158,7 +161,11 @@ export class HomePage implements OnInit {
     let keyValue: string = selectEvent.value.value
 
     keyValue =
-      keyValue && keyValue.length > 0 ? keyValue : STORAGE_KEYS.FORM
+      keyValue && keyValue.length > 0
+        ? keyValue
+        : STORAGE_KEYS.DEFAULT_TEMPLATE
+
+    this.storageService.set(STORAGE_KEYS.SELECTED_TEMPLATE, keyValue)
 
     this.selectedTemplateKey = {
       value: keyValue,
@@ -191,7 +198,7 @@ export class HomePage implements OnInit {
     this.phoneNumbers = ['', '', '', '', '']
     this.contacts = []
     this.contactList = []
-    this.storageService.set(STORAGE_KEYS.FORM, this.currentTemplate)
+    // this.storageService.set(STORAGE_KEYS.FORM, this.currentTemplate)
   }
 
   public storeFormData(): void {
@@ -220,9 +227,38 @@ export class HomePage implements OnInit {
 
   public setModalVisibility(modalVisible: boolean): void {
     this.showSaveTemplateModal = modalVisible
+  }
 
-    if (modalVisible === false) {
-      this.storeTemplate(STORAGE_KEYS.FORM)
+  public async showSaveActions(): Promise<void> {
+    const showActionResult: ShowActionsResult =
+      await ActionSheet.showActions({
+        title: 'How do you want to save this form?',
+        message: '',
+        options: [
+          {
+            title: 'Add New Template',
+            style: ActionSheetButtonStyle.Default,
+          },
+          {
+            title: 'Update Current Template',
+          },
+          {
+            title: 'Cancel',
+            style: ActionSheetButtonStyle.Cancel,
+          },
+        ],
+      })
+
+    switch (showActionResult.index) {
+      case 0:
+        this.setModalVisibility(true)
+        break
+      case 1:
+        this.storeTemplate(this.selectedTemplateKey.value)
+        break
+      case 2:
+      default:
+        break
     }
   }
 
@@ -230,13 +266,19 @@ export class HomePage implements OnInit {
     this.storageService.setLoadingData(true)
     this.showSaveTemplateModal = false
 
-    const newTemplateKey: string = `template-${templateName}`
+    const newTemplateKey: string =
+      templateName === STORAGE_KEYS.DEFAULT_TEMPLATE
+        ? templateName
+        : `${STORAGE_KEYS.TEMPLATE_PREFIX}${templateName}`
+
     this.storeTemplate(newTemplateKey)
 
     if (!this.templateKeys.some((key: string) => key === newTemplateKey)) {
       this.templateKeys.push(newTemplateKey)
     }
     this.setTemplateList()
+
+    this.storageService.set(STORAGE_KEYS.SELECTED_TEMPLATE, newTemplateKey)
 
     this.selectedTemplateKey = {
       value: newTemplateKey,
@@ -294,7 +336,7 @@ export class HomePage implements OnInit {
   }
 
   public setTemplateList(): void {
-    const selectItems: SelectItem[] = [{ value: '', label: 'None' }]
+    const selectItems: SelectItem[] = [DEFAULT_TEMPLATE_ITEM]
 
     this.templateKeys.forEach((key: string) => {
       selectItems.push({
@@ -304,5 +346,30 @@ export class HomePage implements OnInit {
     })
 
     this.templateList = [...selectItems]
+  }
+
+  private checkDefaultTemplate(): void {
+    this.storageService
+      .get(STORAGE_KEYS.SELECTED_TEMPLATE)
+      .subscribe((response: string) => {
+        let selectedTemplateKey: string = JSON.parse(response)
+
+        if (
+          !selectedTemplateKey ||
+          !this.templateKeys.some(
+            (key: string) => key === selectedTemplateKey,
+          )
+        ) {
+          selectedTemplateKey = STORAGE_KEYS.DEFAULT_TEMPLATE
+        }
+
+        this.selectedTemplateKey = {
+          value: selectedTemplateKey,
+          label: this.helperService.getTemplateName(selectedTemplateKey),
+        }
+
+        this.checkStoredForm(selectedTemplateKey)
+        this.storageService.setLoadingData(false)
+      })
   }
 }

@@ -7,7 +7,10 @@ import {
 } from '@angular/core'
 
 import { ToastService } from '../../../shared/services/toast.service'
-import { TEMPLATE_NAME_TAKEN_MESSAGE } from '../../../shared/global-variables'
+import {
+  STORAGE_KEYS,
+  TEMPLATE_NAME_TAKEN_MESSAGE,
+} from '../../../shared/global-variables'
 
 @Component({
   selector: 'app-save-template-modal',
@@ -34,13 +37,15 @@ export class SaveTemplateModalComponent implements OnInit {
     if (
       this.templateKeys.some(
         (templateKey: string) =>
-          templateKey === `template-${this.templateName}`,
+          templateKey ===
+          `${STORAGE_KEYS.TEMPLATE_PREFIX}${this.templateName}`,
       )
     ) {
       this.displayNameTakenWarning()
     } else {
       this.saveTemplateEmitter.emit(this.templateName)
     }
+
     this.clearTemplateName()
   }
 
