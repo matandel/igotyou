@@ -114,9 +114,28 @@ export class TemplatesPage implements OnInit {
             }
           }
 
+          this.updateSelectedTemplate(templateKey, newTemplateKey)
           this.checkStoredTemplates()
         })
     }
+  }
+
+  private updateSelectedTemplate(
+    templateKey: string,
+    newTemplateKey: string,
+  ): void {
+    this.storageService
+      .get(STORAGE_KEYS.SELECTED_TEMPLATE)
+      .subscribe((response: string) => {
+        let selectedTemplateKey: string = JSON.parse(response)
+
+        if (selectedTemplateKey === templateKey) {
+          this.storageService.set(
+            STORAGE_KEYS.SELECTED_TEMPLATE,
+            newTemplateKey,
+          )
+        }
+      })
   }
 
   public disableTemplateEdit(): void {
