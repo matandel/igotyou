@@ -1,13 +1,12 @@
 import { Component, OnInit } from '@angular/core'
-import { isPlatform, Platform } from '@ionic/angular'
+import {
+  isPlatform,
+  Platform,
+  ActionSheetController,
+} from '@ionic/angular'
 import { Contacts, Contact } from '@capacitor-community/contacts'
 import { IonicSelectableComponent } from 'ionic-selectable'
 import { AndroidPermissions } from '@awesome-cordova-plugins/android-permissions/ngx'
-import {
-  ActionSheet,
-  ActionSheetButtonStyle,
-  ShowActionsResult,
-} from '@capacitor/action-sheet'
 
 import { Template } from '../../shared/models/template.model'
 import { SelectItem } from '../../shared/interfaces/select-item.interface'
@@ -44,6 +43,7 @@ export class HomePage implements OnInit {
   constructor(
     private platform: Platform,
     private androidPermissions: AndroidPermissions,
+    private actionSheetController: ActionSheetController,
     private storageService: StorageService,
     private smsService: SmsService,
     private helperService: HelperService,
@@ -78,6 +78,7 @@ export class HomePage implements OnInit {
         this.contacts = sortedContacts.filter(
           (contact: Contact) => contact.phoneNumbers.length > 0,
         )
+
         this.contactList = this.contacts.map((contact: Contact) => {
           return {
             value: contact.phoneNumbers[0].number,
@@ -196,9 +197,7 @@ export class HomePage implements OnInit {
   public clearTemplate(): void {
     this.currentTemplate = new Template('', '', [''], [''], false, '')
     this.phoneNumbers = ['', '', '', '', '']
-    this.contacts = []
-    this.contactList = []
-    // this.storageService.set(STORAGE_KEYS.FORM, this.currentTemplate)
+    this.selectedContacts = []
   }
 
   public storeFormData(): void {
@@ -230,36 +229,34 @@ export class HomePage implements OnInit {
   }
 
   public async showSaveActions(): Promise<void> {
-    const showActionResult: ShowActionsResult =
-      await ActionSheet.showActions({
-        title: 'How do you want to save this form?',
-        message: '',
-        options: [
+    const actionSheet: HTMLIonActionSheetElement =
+      await this.actionSheetController.create({
+        header: 'How do you want to save this data?',
+        buttons: [
           {
-            title: 'Add New Template',
-            style: ActionSheetButtonStyle.Default,
+            text: 'Add as a new template',
+            icon: 'add',
+            handler: () => {
+              this.setModalVisibility(true)
+            },
           },
           {
-            title: 'Update Current Template',
+            text: 'Update current template',
+            icon: 'create',
+            handler: () => {
+              this.storeTemplate(this.selectedTemplateKey.value)
+            },
           },
           {
-            title: 'Cancel',
-            style: ActionSheetButtonStyle.Cancel,
+            text: 'Cancel',
+            icon: 'close',
+            role: 'cancel',
+            handler: () => {},
           },
         ],
       })
 
-    switch (showActionResult.index) {
-      case 0:
-        this.setModalVisibility(true)
-        break
-      case 1:
-        this.storeTemplate(this.selectedTemplateKey.value)
-        break
-      case 2:
-      default:
-        break
-    }
+    await actionSheet.present()
   }
 
   public saveTemplate(templateName: string): void {
