@@ -237,13 +237,14 @@ export class HomePage implements OnInit {
         options: [
           {
             title: 'Add New Template',
+            style: ActionSheetButtonStyle.Default,
           },
           {
             title: 'Update Current Template',
           },
           {
             title: 'Cancel',
-            style: ActionSheetButtonStyle.Destructive,
+            style: ActionSheetButtonStyle.Cancel,
           },
         ],
       })
