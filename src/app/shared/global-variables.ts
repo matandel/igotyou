@@ -9,8 +9,8 @@ export const enum STORAGE_KEYS {
 
 export const enum SMS_SHORTCUT {
   NAME = 'sendMessageShortcut',
-  SHORT_LABEL = 'Send Message',
-  LONG_LABEL = 'Send Stored Message',
+  SHORT_LABEL = 'Send',
+  LONG_LABEL = 'Send Message',
 }
 
 export const DEFAULT_TEMPLATE_ITEM: SelectItem = {

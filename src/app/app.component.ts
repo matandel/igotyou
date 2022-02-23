@@ -74,6 +74,7 @@ export class AppComponent implements OnInit, OnDestroy {
       (response: { data: string }) => {
         if (response.data === SMS_SHORTCUT.NAME) {
           setTimeout(() => {
+            this.storageService.setLoadingData(true)
             this.smsService.sendStoredSMS()
           }, 200)
         }
