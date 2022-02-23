@@ -6,16 +6,7 @@ import { AndroidPermissions } from '@awesome-cordova-plugins/android-permissions
 
 import { StorageService } from './storage.service'
 import { ToastService } from './toast.service'
-import {
-  MAPS_URL,
-  SMS_MESSAGE_HEADER,
-  SMS_SUCCESS_MESSAGE,
-  SMS_FAIL_MESSAGE,
-  STORAGE_KEYS,
-  TEMPLATE_MISSING_MESSAGE,
-  LOCATION_PERMISSIONS_MISSING,
-  SMS_PERMISSIONS_MISSING,
-} from '../global-variables'
+import { MAPS_URL, STORAGE_KEYS, TEXT } from '../global-variables'
 import { Template } from '../models/template.model'
 
 @Injectable({
@@ -41,7 +32,7 @@ export class SmsService {
       return
     }
 
-    let formattedMessage: string = `${SMS_MESSAGE_HEADER}\n\nMessage: ${message}`
+    let formattedMessage: string = `${TEXT.SMS_HEADER}\n\nMessage: ${message}`
     let permissionState: { hasPermission: boolean }
 
     if (includeLocation) {
@@ -59,7 +50,10 @@ export class SmsService {
         )
 
         if (!permissionState.hasPermission) {
-          this.toastService.show(LOCATION_PERMISSIONS_MISSING, 'danger')
+          this.toastService.show(
+            TEXT.LOCATION_PERMISSIONS_MISSING,
+            'danger',
+          )
           this.storageService.setLoadingData(false)
         }
       }
@@ -88,7 +82,7 @@ export class SmsService {
       )
 
       if (!permissionState.hasPermission) {
-        this.toastService.show(SMS_PERMISSIONS_MISSING, 'danger')
+        this.toastService.show(TEXT.SMS_PERMISSIONS_MISSING, 'danger')
         this.storageService.setLoadingData(false)
       }
     }
@@ -100,13 +94,13 @@ export class SmsService {
           .then(() => {
             if (i === numberList.length - 1) {
               this.storageService.setLoadingData(false)
-              this.toastService.show(SMS_SUCCESS_MESSAGE, 'success')
+              this.toastService.show(TEXT.SMS_SEND_SUCCESS, 'success')
             }
           })
           .catch(() => {
             if (i === numberList.length - 1) {
               this.storageService.setLoadingData(false)
-              this.toastService.show(SMS_FAIL_MESSAGE, 'danger')
+              this.toastService.show(TEXT.SMS_SEND_FAIL, 'danger')
             }
           })
       }, 200)
@@ -141,7 +135,7 @@ export class SmsService {
           )
         ) {
           this.storageService.setLoadingData(false)
-          this.toastService.show(TEMPLATE_MISSING_MESSAGE, 'danger')
+          this.toastService.show(TEXT.TEMPLATE_MISSING, 'danger')
           return
         }
 
