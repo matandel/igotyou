@@ -1,10 +1,13 @@
 import { Component, OnInit, OnDestroy } from '@angular/core'
-import { Platform } from '@ionic/angular'
+import { isPlatform, Platform } from '@ionic/angular'
 import { Subscription } from 'rxjs'
 import { SplashScreen } from '@capacitor/splash-screen'
+import { AndroidShortcuts } from 'capacitor-android-shortcuts'
 
 import { StorageService } from './shared/services/storage.service'
+import { SmsService } from './shared/services/sms.service'
 import { StatusBarService } from './shared/services/status-bar.service'
+import { SMS_SHORTCUT } from './shared/global-variables'
 
 @Component({
   selector: 'app-root',
@@ -20,8 +23,11 @@ export class AppComponent implements OnInit, OnDestroy {
   constructor(
     private platform: Platform,
     private storageService: StorageService,
+    private smsService: SmsService,
     private statusBarService: StatusBarService,
-  ) {}
+  ) {
+    this.addSmsShortcut()
+  }
 
   public async ngOnInit(): Promise<void> {
     await SplashScreen.show()
@@ -35,6 +41,44 @@ export class AppComponent implements OnInit, OnDestroy {
 
   public ngOnDestroy(): void {
     this.unsubscribeFromLoadingDat()
+  }
+
+  private addSmsShortcut(): void {
+    if (isPlatform('android')) {
+      AndroidShortcuts.isDynamicSupported().then(({ result }) => {
+        if (result) {
+          AndroidShortcuts.addDynamic({
+            items: [
+              {
+                id: SMS_SHORTCUT.NAME,
+                shortLabel: SMS_SHORTCUT.SHORT_LABEL,
+                longLabel: SMS_SHORTCUT.LONG_LABEL,
+                icon: {
+                  type: 'Bitmap',
+                  name: '<base64-string>',
+                },
+                data: SMS_SHORTCUT.NAME,
+              },
+            ],
+          })
+        }
+      })
+
+      this.addSmsShortcutListener()
+    }
+  }
+
+  private addSmsShortcutListener(): void {
+    AndroidShortcuts.addListener(
+      'shortcut',
+      (response: { data: string }) => {
+        if (response.data === SMS_SHORTCUT.NAME) {
+          setTimeout(() => {
+            this.smsService.sendStoredSMS()
+          }, 200)
+        }
+      },
+    )
   }
 
   public setPageTitle(title: string): void {

@@ -5,6 +5,7 @@ import { Drivers } from '@ionic/storage'
 import { IonicStorageModule } from '@ionic/storage-angular'
 import { SMS } from '@ionic-native/sms/ngx'
 import { AndroidPermissions } from '@awesome-cordova-plugins/android-permissions/ngx'
+import { AndroidShortcuts } from 'capacitor-android-shortcuts'
 
 import { AppRoutingModule } from './app-routing.module'
 import { LayoutModule } from './components/layout/layout.module'
