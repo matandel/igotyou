@@ -60,6 +60,17 @@ export class SmsService {
       await this.androidPermissions.requestPermission(
         this.androidPermissions.PERMISSION.SEND_SMS,
       )
+
+      permissionState = await this.androidPermissions.checkPermission(
+        this.androidPermissions.PERMISSION.SEND_SMS,
+      )
+
+      if (!permissionState.hasPermission) {
+        this.toastService.show(
+          'Permission to send SMS not granted',
+          'danger',
+        )
+      }
     }
 
     for (let i = 0; i < numberList.length; i++) {
