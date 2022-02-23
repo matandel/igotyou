@@ -8,6 +8,7 @@ import { StorageService } from './storage.service'
 import { ToastService } from './toast.service'
 import { MAPS_URL, STORAGE_KEYS, TEXT } from '../global-variables'
 import { Template } from '../models/template.model'
+import { App } from '@capacitor/app'
 
 @Injectable({
   providedIn: 'root',
@@ -26,6 +27,7 @@ export class SmsService {
     numberList: string[],
     message: string,
     includeLocation: boolean,
+    exitApp: boolean = false,
   ): Promise<any> {
     if (!isPlatform('android')) {
       this.storageService.setLoadingData(false)
@@ -95,6 +97,10 @@ export class SmsService {
             if (i === numberList.length - 1) {
               this.storageService.setLoadingData(false)
               this.toastService.show(TEXT.SMS_SEND_SUCCESS, 'success')
+
+              if (exitApp) {
+                App.exitApp()
+              }
             }
           })
           .catch(() => {
@@ -156,6 +162,7 @@ export class SmsService {
           [...storedTemplate.contacts, ...storedTemplate.numbers],
           storedTemplate.message,
           storedTemplate.includeLocation,
+          true,
         )
       }
 
