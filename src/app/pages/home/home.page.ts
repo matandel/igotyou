@@ -111,8 +111,7 @@ export class HomePage implements OnInit {
       this.storageService
         .get(templateKey)
         .subscribe((response: string) => {
-          const storedData: string = response
-          const storedTemplate: Template = JSON.parse(storedData)
+          const storedTemplate: Template = JSON.parse(response)
 
           this.checkCurrentTemplate(storedTemplate)
           this.storageService.setLoadingData(false)

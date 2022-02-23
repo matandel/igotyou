@@ -10,11 +10,7 @@ import { Template } from '../../shared/models/template.model'
 import { StorageService } from '../../shared/services/storage.service'
 import { HelperService } from '../../shared/services/helper.service'
 import { ToastService } from '../../shared/services/toast.service'
-import {
-  DELETE_TEMPLATE_MESSAGE,
-  STORAGE_KEYS,
-  TEMPLATE_NAME_TAKEN_MESSAGE,
-} from '../../shared/global-variables'
+import { STORAGE_KEYS, TEXT } from '../../shared/global-variables'
 
 @Component({
   selector: 'app-templates',
@@ -153,7 +149,7 @@ export class TemplatesPage implements OnInit {
 
   public async showDeleteActions(): Promise<void> {
     const actionSheet = await this.actionSheetController.create({
-      header: DELETE_TEMPLATE_MESSAGE,
+      header: TEXT.DELETE_TEMPLATE,
       buttons: [
         {
           text: 'Delete',
@@ -236,6 +232,6 @@ export class TemplatesPage implements OnInit {
   }
 
   private displayNameTakenWarning(): void {
-    this.toastService.show(TEMPLATE_NAME_TAKEN_MESSAGE, 'warning')
+    this.toastService.show(TEXT.TEMPLATE_NAME_TAKEN, 'warning')
   }
 }

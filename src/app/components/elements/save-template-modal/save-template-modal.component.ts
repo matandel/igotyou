@@ -7,10 +7,7 @@ import {
 } from '@angular/core'
 
 import { ToastService } from '../../../shared/services/toast.service'
-import {
-  STORAGE_KEYS,
-  TEMPLATE_NAME_TAKEN_MESSAGE,
-} from '../../../shared/global-variables'
+import { STORAGE_KEYS, TEXT } from '../../../shared/global-variables'
 
 @Component({
   selector: 'app-save-template-modal',
@@ -59,6 +56,6 @@ export class SaveTemplateModalComponent implements OnInit {
   }
 
   private displayNameTakenWarning(): void {
-    this.toastService.show(TEMPLATE_NAME_TAKEN_MESSAGE, 'warning')
+    this.toastService.show(TEXT.TEMPLATE_NAME_TAKEN, 'warning')
   }
 }

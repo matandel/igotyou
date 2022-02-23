@@ -36,6 +36,7 @@
     "@ionic/angular": "^6.0.0",
     "@ionic/pwa-elements": "^3.1.1",
     "@ionic/storage-angular": "^3.0.6",
+    "capacitor-android-shortcuts": "^1.0.3",
     "cordova-plugin-android-permissions": "^1.1.3",
     "cordova-sms-plugin": "^1.0.2",
     "ionic-selectable": "^4.9.0",
