@@ -16,8 +16,10 @@ import { SMS_SHORTCUT } from './shared/global-variables'
 })
 export class AppComponent implements OnInit, OnDestroy {
   private loadingDataSubscription: Subscription
+  private shortcutModeSubscription: Subscription
   private darkModeKey: string = 'isDarkMode'
   public loadingData: boolean = false
+  public shortcutMode: boolean = false
   public pageTitle: string
 
   constructor(
@@ -33,14 +35,17 @@ export class AppComponent implements OnInit, OnDestroy {
     await SplashScreen.show()
 
     this.platform.ready().then(() => {
+      this.storageService.setShortcutMode(false)
       this.getSavedMode()
       this.pageTitle = window.location.href.split('/').pop()
       this.subscribeToLoadingData()
+      this.subscribeToShortcutMode()
     })
   }
 
   public ngOnDestroy(): void {
-    this.unsubscribeFromLoadingDat()
+    this.unsubscribeFromLoadingData()
+    this.unsubscribeFromShortcutMode()
   }
 
   private addSmsShortcut(): void {
@@ -74,6 +79,8 @@ export class AppComponent implements OnInit, OnDestroy {
       (response: { data: string }) => {
         if (response.data === SMS_SHORTCUT.NAME) {
           setTimeout(() => {
+            this.shortcutMode = true
+            this.storageService.setShortcutMode(true)
             this.storageService.setLoadingData(true)
             this.smsService.sendStoredSMS()
           }, 200)
@@ -95,8 +102,21 @@ export class AppComponent implements OnInit, OnDestroy {
       )
   }
 
-  private unsubscribeFromLoadingDat(): void {
+  private unsubscribeFromLoadingData(): void {
     this.loadingDataSubscription.unsubscribe()
+  }
+
+  private subscribeToShortcutMode(): void {
+    this.shortcutModeSubscription =
+      this.storageService.shortcutModeChange.subscribe(
+        (shortcutMode: boolean) => {
+          this.shortcutMode = shortcutMode
+        },
+      )
+  }
+
+  private unsubscribeFromShortcutMode(): void {
+    this.shortcutModeSubscription.unsubscribe()
   }
 
   private getSavedMode(): void {

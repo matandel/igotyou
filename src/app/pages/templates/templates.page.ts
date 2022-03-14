@@ -194,12 +194,6 @@ export class TemplatesPage implements OnInit {
       .subscribe((response: string) => {
         let selectedTemplateKey: string = JSON.parse(response)
 
-        console.log(
-          'deleted',
-          selectedTemplateKey,
-          this.deletedTemplateKey,
-        )
-
         if (
           selectedTemplateKey &&
           selectedTemplateKey == this.deletedTemplateKey

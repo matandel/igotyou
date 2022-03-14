@@ -29,4 +29,5 @@ export const enum TEXT {
   TEMPLATE_MISSING = 'Stored template was not found.',
   LOCATION_PERMISSIONS_MISSING = 'Permission to use location not granted.',
   SMS_PERMISSIONS_MISSING = 'Permission to send SMS not granted.',
+  TEMPLATE_LIMIT_REACHED = 'You have reached a limit of 20 templates saved. Delete a template to free up space for saving new templates.',
 }

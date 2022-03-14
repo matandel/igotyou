@@ -13,9 +13,11 @@ import { SelectItem } from '../../shared/interfaces/select-item.interface'
 import { StorageService } from '../../shared/services/storage.service'
 import { SmsService } from '../../shared/services/sms.service'
 import { HelperService } from '../../shared/services/helper.service'
+import { ToastService } from 'src/app/shared/services/toast.service'
 import {
   DEFAULT_TEMPLATE_ITEM,
   STORAGE_KEYS,
+  TEXT
 } from '../../shared/global-variables'
 
 interface SelectableComponentEvent {
@@ -47,6 +49,7 @@ export class HomePage implements OnInit {
     private storageService: StorageService,
     private smsService: SmsService,
     private helperService: HelperService,
+    private toastService: ToastService
   ) {}
 
   public ngOnInit(): void {
@@ -236,7 +239,7 @@ export class HomePage implements OnInit {
             text: 'Add as a new template',
             icon: 'add',
             handler: () => {
-              this.setModalVisibility(true)
+              this.checkTemplatesLimit()
             },
           },
           {
@@ -256,6 +259,14 @@ export class HomePage implements OnInit {
       })
 
     await actionSheet.present()
+  }
+
+  private checkTemplatesLimit(): void {
+    if (this.templateList && this.templateList.length >= 20) {
+      this.toastService.show(TEXT.TEMPLATE_LIMIT_REACHED, 'danger')
+    } else {
+      this.setModalVisibility(true)
+    }
   }
 
   public saveTemplate(templateName: string): void {

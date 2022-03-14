@@ -12,6 +12,9 @@ export class StorageService {
   private loadingData: boolean = false
   public loadingDataChange: Subject<boolean> = new Subject<boolean>()
 
+  private shortcutMode: boolean = false
+  public shortcutModeChange: Subject<boolean> = new Subject<boolean>()
+
   constructor(private storage: Storage) {
     this.init()
   }
@@ -59,5 +62,14 @@ export class StorageService {
 
   public getLoadingData(): boolean {
     return this.loadingData
+  }
+
+  public setShortcutMode(shortcutMode: boolean): void {
+    this.shortcutMode = shortcutMode
+    this.shortcutModeChange.next(shortcutMode)
+  }
+
+  public getShortcutMode(): boolean {
+    return this.shortcutMode
   }
 }
