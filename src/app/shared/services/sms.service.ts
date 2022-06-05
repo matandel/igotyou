@@ -66,7 +66,7 @@ export class SmsService {
         coordinates.coords.latitude &&
         coordinates.coords.longitude
       ) {
-        formattedMessage += `\n\n${MAPS_URL}${coordinates.coords.latitude}${coordinates.coords.longitude}`
+        formattedMessage += `\n\n${MAPS_URL}${coordinates.coords.latitude},${coordinates.coords.longitude}`
       }
     }
 
